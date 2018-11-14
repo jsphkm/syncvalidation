@@ -1,28 +1,35 @@
-import React, { Component } from 'react';
-import logo from './logo.svg';
-import './App.css';
+import React from 'react';
+import {connect} from 'react-redux';
+import {BrowserRouter, Route, Switch, Redirect} from 'react-router-dom';
+import LoginPage from './login-page';
+import {Dashboard} from './dashboard';
+import {NotFound} from './notfound';
 
-class App extends Component {
-  render() {
-    return (
-      <div className="App">
-        <header className="App-header">
-          <img src={logo} className="App-logo" alt="logo" />
-          <p>
-            Edit <code>src/App.js</code> and save to reload.
-          </p>
-          <a
-            className="App-link"
-            href="https://reactjs.org"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Learn React
-          </a>
-        </header>
-      </div>
-    );
-  }
+const Protected = () => (
+  <h1>Protected page</h1>
+)
+
+const PrivateRoute = (props) => (
+  <Route render={(props) => (
+    props.loggedin === true ? <Dashboard />
+    : <Redirect to="/" />
+  )} />
+)
+
+const App = (props) => {
+  return (
+      <BrowserRouter>
+        <Switch>
+          <Route exact path="/" component={LoginPage} />
+          <PrivateRoute path="/dashboard" component={Protected} logged={props.loggedin}/>
+          <Route component={NotFound} />
+        </Switch>
+      </BrowserRouter>
+  )
 }
 
-export default App;
+const mapStateToProps = (state) => ({
+  loggedin: state.main.loggedin
+})
+
+export default connect(mapStateToProps)(App);
